@@ -21,6 +21,37 @@ def carregar_extratos(caminho="extratos/*.csv"):
     return df
 
 
+def classificar(desc):
+
+    d = desc.lower()
+
+    if "pix" in d:
+        return "PIX"
+
+    if "ted" in d:
+        return "TED"
+
+    if "cartao" in d or "cartão" in d:
+        return "Cartão"
+
+    if "boleto" in d:
+        return "Boleto"
+
+    if "transferência" in d:
+        return "TED"
+    
+    if "salário" in d:
+        return "Salário XP"
+    
+    if "rendimento automático" in d:
+        return "Rendimento automático"
+    
+    if "pagamento para banco xp s a" in d:
+        return "Fatura cartão"
+
+    return "Outros"
+
+
 def tratar_extratos(df):
 
     df = df.copy()
@@ -37,6 +68,25 @@ def tratar_extratos(df):
         .astype(float)
     )
 
+    df["Meio"] = df["Descricao"].apply(classificar)
+
+    def classificar_tipo(row):
+        descricao = str(row["Descricao"]).lower()
+        valor = row["Valor"]
+
+        if "transferência enviada para conta investimento" in descricao:
+            return "Investimentos"
+        
+        if "transferência enviada para a conta investimento" in descricao:
+            return "Investimentos"
+
+        if valor > 0:
+            return "Recebimento"
+
+        return "Gasto"
+
+    df["Tipo"] = df.apply(classificar_tipo, axis=1)
+
     df["hash"] = (
         df["Data"].astype(str)
         + "|"
@@ -51,7 +101,7 @@ def tratar_extratos(df):
 def montar_rows_extratos(df):
 
     rows = df[
-        ["Data", "Descricao", "Valor", "hash"]
+        ["Data", "Descricao", "Valor", "Meio", "Tipo", "hash"]
     ].values.tolist()
 
     return rows

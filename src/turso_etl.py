@@ -14,8 +14,8 @@ VALUES (?, ?, ?, ?, ?, ?, ?)
 
 SQL_INSERT_EXTRATOS = """
 INSERT OR IGNORE INTO extratos
-(data, descricao, valor, hash)
-VALUES (?, ?, ?, ?)
+(data, descricao, valor, meio, tipo, hash)
+VALUES (?, ?, ?, ?, ?, ?)
 """
 
 
